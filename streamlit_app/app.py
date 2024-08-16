@@ -43,6 +43,11 @@ if option == "Segmentation":
 
     if uploaded_file is not None:
         file_path = os.path.join('data', 'input_images', uploaded_file.name)
+        output_dir = 'data\segmented_objects'
+
+        # Ensure output directory exists
+        os.makedirs(output_dir, exist_ok=True)
+
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
         
@@ -62,8 +67,12 @@ if option == "Segmentation":
                     x1, y1, x2, y2 = box.astype(int)
                     ax.add_patch(plt.Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False, edgecolor=color, linewidth=2))
                     ax.text(x1, y1, f"Object {i+1}", bbox=dict(facecolor=color, alpha=0.5), fontsize=8, color='white')
+
+                    # Save the segmented object
+                    segmented_object = image.crop((x1, y1, x2, y2))
+                    object_path = os.path.join(output_dir, f"segmented_object_{i+1}.png")
+                    segmented_object.save(object_path)
                 st.pyplot(fig)
-                # ...
 
 elif option == "Identification":
     st.title('Object Identification')
