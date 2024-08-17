@@ -6,6 +6,11 @@ import numpy as np
 import torch
 from torchvision.models.detection import maskrcnn_resnet50_fpn
 from torchvision.transforms import functional as F
+from torchvision.models import resnet50
+from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
+from torchvision.models.detection import maskrcnn_resnet50_fpn
+from torchvision.transforms import functional as F
+
 
 def load_model():
     model = maskrcnn_resnet50_fpn(pretrained=True)
@@ -88,12 +93,9 @@ def store_metadata(db_path, object_data):
 
 ###########################################################
 #identification part
-from torchvision.models import resnet50
-from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
-from torchvision.models.detection import maskrcnn_resnet50_fpn
-from torchvision.transforms import functional as F
+# In identification_model.py
 
-# ... (keep existing code) ...
+# ... (keep existing imports and functions) ...
 
 def load_identification_model():
     model = resnet50(pretrained=True)
@@ -115,28 +117,72 @@ def identify_object(model, image):
         output = model(image_tensor)
     
     # Load ImageNet class labels
-
-    classes_path = os.path.join('utils', 'imagenet_classes.txt')
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(current_dir)
+    classes_path = os.path.join(project_root, 'imagenet_classes.txt')
     
     with open(classes_path) as f:
         classes = [line.strip() for line in f.readlines()]
     
     _, predicted = torch.max(output, 1)
     return classes[predicted.item()]
-def identify_objects(db_path, output_dir):
+
+def extract_identify_and_store_objects(image_path, output_dir, db_path, max_objects=5):
+    # Ensure output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+    # Load the segmentation model
+    segmentation_model = load_model()
+    # Load the identification model
     identification_model = load_identification_model()
+    # Perform segmentation
+    image, masks, boxes, labels = segment_image(segmentation_model, image_path)
+    # Generate a master ID for the original image
+    master_id = str(uuid.uuid4())
+    # Convert PIL Image to numpy array
+    image_np = np.array(image)
+    # Extract, identify, and save each object
+    object_data = []
+    for i, (mask, box, label) in enumerate(zip(masks, boxes, labels)):
+        if len(object_data) >= max_objects:
+            break
+        
+        # Generate a unique ID for the object
+        object_id = str(uuid.uuid4())
+        # Extract the object using the mask
+        object_mask = mask > 0.5
+        object_image = image_np * object_mask[:, :, np.newaxis]
+        # Convert to PIL Image
+        object_pil = Image.fromarray(object_image.astype('uint8'), 'RGB')
+        # Create a white background
+        background = Image.new('RGB', object_pil.size, (255, 255, 255))
+       
+        # Paste the object onto the white background
+        background.paste(object_pil, (0, 0), Image.fromarray((object_mask * 255).astype('uint8')))
+        # Identify the object
+        identification = identify_object(identification_model, background)
+        # Save the object image
+        object_filename = f"{object_id}.png"
+        object_path = os.path.join(output_dir, object_filename)
+        background.save(object_path)
+        # Store object metadata
+        object_data.append({
+            'object_id': object_id,
+            'master_id': master_id,
+            'filename': object_filename,
+            'label': label.item(),
+            'identification': identification
+        })
+    # Store metadata in SQLite database
+    store_metadata(db_path, object_data)
+    return master_id, object_data
+
+def store_metadata(db_path, object_data):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-
-    cursor.execute('SELECT object_id, filename FROM objects WHERE identification IS NULL OR identification = ""')
-    objects = cursor.fetchall()
-
-    for object_id, filename in objects:
-        image_path = os.path.join(output_dir, filename)
-        image = Image.open(image_path).convert("RGB")
-        identification = identify_object(identification_model, image)
-
-        cursor.execute('UPDATE objects SET identification = ? WHERE object_id = ?', (identification, object_id))
-
+    # Insert object data
+    cursor.executemany('''
+    INSERT INTO objects (object_id, master_id, filename, label, identification)
+    VALUES (:object_id, :master_id, :filename, :label, :identification)
+    ''', object_data)
     conn.commit()
     conn.close()

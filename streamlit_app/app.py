@@ -12,7 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.data_mapping import create_database, get_objects
 from utils.migrate_database import migrate_database
 from models.segmentation_model import load_model, segment_image
-from models.identification_model import extract_and_store_objects, identify_objects
+from models.identification_model import extract_identify_and_store_objects
 # from models.text_extraction_model import extract_text
 # from models.summarization_model import summarize_attributes
 # from utils.data_mapping import map_data
@@ -34,7 +34,7 @@ segmentation_model = load_models()
 st.sidebar.title('Navigation')
 option = st.sidebar.radio(
     "Go to",
-    ('Segmentation', 'Object Extraction and Storage', 'Identification', 'Text Extraction', 'Summarization', 'Data Mapping', 'Output Generation')
+    ('Segmentation', 'Object Extraction and Identification', 'Text Extraction', 'Summarization', 'Data Mapping', 'Output Generation')
 )
 
 st.title('Image Processing Pipeline')
@@ -77,10 +77,10 @@ if option == "Segmentation":
                     segmented_object.save(object_path)
                 st.pyplot(fig)
 
-elif option == "Object Extraction and Storage":
-    st.title('Object Extraction and Storage')
+elif option == "Object Extraction and Identification":
+    st.title('Object Extraction and Identification')
     
-    uploaded_file = st.file_uploader("Choose an image for identification...", type=["jpg", "jpeg", "png"])
+    uploaded_file = st.file_uploader("Choose an image for object extraction and identification...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
         file_path = os.path.join('data', 'input_images', uploaded_file.name)
@@ -91,71 +91,33 @@ elif option == "Object Extraction and Storage":
         
         st.image(uploaded_file, caption='Uploaded Image', use_column_width=True)
         
-        if st.button('Identify Objects'):
-            with st.spinner('Identifying objects...'):
-                master_id, object_data = extract_and_store_objects(file_path, output_dir, db_path)
-                st.success('Object identification completed.')
-
-                st.write(f"Processed image with master ID: {master_id}")
-                st.write(f"Extracted {len(object_data)} unique objects")
-                
-                # Display the extracted objects
-                for obj in object_data:
-                    object_image_path = os.path.join(output_dir, obj['filename'])
-                    st.image(object_image_path, caption=f"Object {obj['object_id']}", use_column_width=True)
-                    
-                # Display metadata table
-                st.subheader('Extracted Object Metadata')
-                df = pd.DataFrame(object_data)
-                st.table(df)
-
-                # Fetch from database
-                db_objects = get_objects(db_path, master_id)
-                st.subheader('Objects from Database')
-                db_df = pd.DataFrame(db_objects, columns=['Object ID', 'Master ID', 'Filename', 'Label', 'identification'])
-                st.table(db_df)
-
-elif option == "Identification":
-    st.title('Object Identification')
-    
-    uploaded_file = st.file_uploader("Choose an image for identification...", type=["jpg", "jpeg", "png"])
-
-    if uploaded_file is not None:
-        file_path = os.path.join('data', 'input_images', uploaded_file.name)
-        output_dir = 'data/output'
-
-        with open(file_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        
-        st.image(uploaded_file, caption='Uploaded Image', use_column_width=True)
-        
-        if st.button('Identify Objects'):
+        if st.button('Extract and Identify Objects'):
             try:
-                with st.spinner('Identifying objects...'):
-                    master_id, object_data = extract_and_store_objects(file_path, output_dir, db_path)
+                with st.spinner('Extracting and identifying objects...'):
+                    master_id, object_data = extract_identify_and_store_objects(file_path, output_dir, db_path)
                     
-                    # Perform object identification
-                    identify_objects(db_path, output_dir)
-                    
-                    st.success('Object identification completed.')
+                    st.success('Object extraction and identification completed.')
 
-                    # Fetch identified objects from database
-                    identified_objects = get_objects(db_path, master_id)
-                    
                     st.write(f"Processed image with master ID: {master_id}")
-                    st.write(f"Identified {len(identified_objects)} unique objects")
+                    st.write(f"Extracted and identified {len(object_data)} unique objects")
                     
-                    # Display the identified objects
-                    for obj in identified_objects:
-                        object_image_path = os.path.join(output_dir, obj[2])  # obj[2] is the filename
-                        st.image(object_image_path, caption=f"Object {obj[0]}: {obj[4]}", use_column_width=True)
-                        
+                    # Display the extracted and identified objects
+                    for obj in object_data:
+                        object_image_path = os.path.join(output_dir, obj['filename'])
+                        st.image(object_image_path, caption=f"Object {obj['object_id']}: {obj['identification']}", use_column_width=True)
+                    
                     # Display metadata table
-                    st.subheader('Identified Object Metadata')
-                    df = pd.DataFrame(identified_objects, columns=['Object ID', 'Master ID', 'Filename', 'Label', 'Identification'])
+                    st.subheader('Extracted and Identified Object Metadata')
+                    df = pd.DataFrame(object_data)
                     st.table(df)
+
+                    # Fetch from database
+                    db_objects = get_objects(db_path, master_id)
+                    st.subheader('Objects from Database')
+                    db_df = pd.DataFrame(db_objects, columns=['Object ID', 'Master ID', 'Filename', 'Label', 'Identification'])
+                    st.table(db_df)
             except Exception as e:
-                st.error(f"An error occurred during object identification: {str(e)}")
+                st.error(f"An error occurred during object extraction and identification: {str(e)}")
                 st.error("Please check if 'imagenet_classes.txt' is present in the project root directory.")
 st.sidebar.title('About')
 st.sidebar.info('This app demonstrates an image processing pipeline that segments objects, identifies them, extracts text, and summarizes attributes.')
