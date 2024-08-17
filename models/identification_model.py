@@ -8,7 +8,6 @@ from torchvision.models.detection import maskrcnn_resnet50_fpn
 from torchvision.transforms import functional as F
 from torchvision.models import resnet50
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
-from torchvision.models.detection import maskrcnn_resnet50_fpn
 from torchvision.transforms import functional as F
 
 
@@ -93,9 +92,6 @@ def store_metadata(db_path, object_data):
 
 ###########################################################
 #identification part
-# In identification_model.py
-
-# ... (keep existing imports and functions) ...
 
 def load_identification_model():
     model = resnet50(pretrained=True)

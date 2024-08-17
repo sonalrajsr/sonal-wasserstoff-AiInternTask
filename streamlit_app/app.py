@@ -10,7 +10,6 @@ import io
 # Add the project root to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.data_mapping import create_database, get_objects
-from utils.migrate_database import migrate_database
 from models.segmentation_model import load_model, segment_image
 from models.identification_model import extract_identify_and_store_objects
 # from models.text_extraction_model import extract_text
@@ -21,7 +20,6 @@ from models.identification_model import extract_identify_and_store_objects
 # Ensure the database is created and migrated once at the start
 db_path = 'data/database.sqlite'
 create_database(db_path)
-migrate_database(db_path)
 
 # Load models
 @st.cache_resource
