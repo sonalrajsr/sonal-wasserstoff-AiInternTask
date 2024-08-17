@@ -6,13 +6,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import io
-
 # Add the project root to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.data_mapping import create_database, get_objects
 from models.segmentation_model import load_model, segment_image
 from models.identification_model import extract_identify_and_store_objects
-# from models.text_extraction_model import extract_text
+from models.text_extraction_model import extract_text_from_single_image
 # from models.summarization_model import summarize_attributes
 # from utils.data_mapping import map_data
 # from utils.visualization import generate_output_image
@@ -117,6 +116,39 @@ elif option == "Object Extraction and Identification":
             except Exception as e:
                 st.error(f"An error occurred during object extraction and identification: {str(e)}")
                 st.error("Please check if 'imagenet_classes.txt' is present in the project root directory.")
+
+elif option == "Text Extraction":
+    st.title('Image Upload and Text Extraction')
+    
+    uploaded_file = st.file_uploader("Choose an image for text extraction...", type=["jpg", "jpeg", "png"])
+
+    if uploaded_file is not None:
+        file_path = os.path.join('data', 'input_images', uploaded_file.name)
+
+        # Ensure input directory exists
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        
+        st.image(uploaded_file, caption='Uploaded Image', use_column_width=True)
+        
+        if st.button('Extract Text'):
+            try:
+                with st.spinner('Extracting text from image...'):
+                    extracted_text = extract_text_from_single_image(file_path)
+                    
+                    st.success('Text extraction completed.')
+                    # print("\n\n\n\n\n\nhello")
+                    # print(extracted_text)
+                    if extracted_text:
+                        st.subheader('Extracted Text:')
+                        st.write(extracted_text)
+                    else:
+                        st.info("No text was extracted from the image.")
+
+            except Exception as e:
+                st.error(f"An error occurred during text extraction: {str(e)}")
 st.sidebar.title('About')
 st.sidebar.info('This app demonstrates an image processing pipeline that segments objects, identifies them, extracts text, and summarizes attributes.')
 
