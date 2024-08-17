@@ -83,3 +83,60 @@ def store_metadata(db_path, object_data):
     ''', object_data)
     conn.commit()
     conn.close()
+
+
+
+###########################################################
+#identification part
+from torchvision.models import resnet50
+from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
+from torchvision.models.detection import maskrcnn_resnet50_fpn
+from torchvision.transforms import functional as F
+
+# ... (keep existing code) ...
+
+def load_identification_model():
+    model = resnet50(pretrained=True)
+    model.eval()
+    return model
+
+def preprocess_image(image):
+    transform = Compose([
+        Resize(256),
+        CenterCrop(224),
+        ToTensor(),
+        Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+    return transform(image).unsqueeze(0)
+
+def identify_object(model, image):
+    image_tensor = preprocess_image(image)
+    with torch.no_grad():
+        output = model(image_tensor)
+    
+    # Load ImageNet class labels
+
+    classes_path = os.path.join('utils', 'imagenet_classes.txt')
+    
+    with open(classes_path) as f:
+        classes = [line.strip() for line in f.readlines()]
+    
+    _, predicted = torch.max(output, 1)
+    return classes[predicted.item()]
+def identify_objects(db_path, output_dir):
+    identification_model = load_identification_model()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT object_id, filename FROM objects WHERE identification IS NULL OR identification = ""')
+    objects = cursor.fetchall()
+
+    for object_id, filename in objects:
+        image_path = os.path.join(output_dir, filename)
+        image = Image.open(image_path).convert("RGB")
+        identification = identify_object(identification_model, image)
+
+        cursor.execute('UPDATE objects SET identification = ? WHERE object_id = ?', (identification, object_id))
+
+    conn.commit()
+    conn.close()

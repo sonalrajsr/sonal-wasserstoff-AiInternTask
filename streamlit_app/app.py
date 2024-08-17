@@ -10,16 +10,19 @@ import io
 # Add the project root to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.data_mapping import create_database, get_objects
+from utils.migrate_database import migrate_database
 from models.segmentation_model import load_model, segment_image
-from models.identification_model import extract_and_store_objects
+from models.identification_model import extract_and_store_objects, identify_objects
 # from models.text_extraction_model import extract_text
 # from models.summarization_model import summarize_attributes
 # from utils.data_mapping import map_data
 # from utils.visualization import generate_output_image
 
-# Ensure the database is created once at the start
+# Ensure the database is created and migrated once at the start
 db_path = 'data/database.sqlite'
 create_database(db_path)
+migrate_database(db_path)
+
 # Load models
 @st.cache_resource
 def load_models():
@@ -31,7 +34,7 @@ segmentation_model = load_models()
 st.sidebar.title('Navigation')
 option = st.sidebar.radio(
     "Go to",
-    ('Segmentation', 'Identification', 'Text Extraction', 'Summarization', 'Data Mapping', 'Output Generation')
+    ('Segmentation', 'Object Extraction and Storage', 'Identification', 'Text Extraction', 'Summarization', 'Data Mapping', 'Output Generation')
 )
 
 st.title('Image Processing Pipeline')
@@ -74,8 +77,8 @@ if option == "Segmentation":
                     segmented_object.save(object_path)
                 st.pyplot(fig)
 
-elif option == "Identification":
-    st.title('Object Identification')
+elif option == "Object Extraction and Storage":
+    st.title('Object Extraction and Storage')
     
     uploaded_file = st.file_uploader("Choose an image for identification...", type=["jpg", "jpeg", "png"])
 
@@ -109,46 +112,51 @@ elif option == "Identification":
                 # Fetch from database
                 db_objects = get_objects(db_path, master_id)
                 st.subheader('Objects from Database')
-                db_df = pd.DataFrame(db_objects, columns=['Object ID', 'Master ID', 'Filename', 'Label'])
+                db_df = pd.DataFrame(db_objects, columns=['Object ID', 'Master ID', 'Filename', 'Label', 'identification'])
                 st.table(db_df)
 
-            # elif option == 'Text Extraction':
-            #     # Step 4: Text/Data Extraction from Objects
-            #     extracted_text = extract_text(image, boxes)
-            #     st.success('Text extraction completed.')
-                
-            #     st.subheader('Extracted Text')
-            #     st.write(extracted_text)
+elif option == "Identification":
+    st.title('Object Identification')
+    
+    uploaded_file = st.file_uploader("Choose an image for identification...", type=["jpg", "jpeg", "png"])
 
-            # elif option == 'Summarization':
-            #     # Step 5: Summarize Object Attributes
-            #     summaries = summarize_attributes(identified_objects, extracted_text)
-            #     st.success('Object attribute summarization completed.')
-                
-            #     st.subheader('Summarized Attributes')
-            #     st.write(summaries)
+    if uploaded_file is not None:
+        file_path = os.path.join('data', 'input_images', uploaded_file.name)
+        output_dir = 'data/output'
 
-            # elif option == 'Data Mapping':
-            #     # Step 6: Data Mapping
-            #     mapped_data = map_data(identified_objects, extracted_text, summaries)
-            #     st.success('Data mapping completed.')
-                
-            #     st.subheader('Mapped Data')
-            #     df = pd.DataFrame(mapped_data)
-            #     st.table(df)
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        
+        st.image(uploaded_file, caption='Uploaded Image', use_column_width=True)
+        
+        if st.button('Identify Objects'):
+            try:
+                with st.spinner('Identifying objects...'):
+                    master_id, object_data = extract_and_store_objects(file_path, output_dir, db_path)
+                    
+                    # Perform object identification
+                    identify_objects(db_path, output_dir)
+                    
+                    st.success('Object identification completed.')
 
-            # elif option == 'Output Generation':
-            #     # Step 7: Output Generation
-            #     output_image = generate_output_image(image, masks, boxes, mapped_data)
-                
-            #     st.subheader('Processed Image')
-            #     st.image(output_image, caption='Processed Image', use_column_width=True)
-                
-            #     # Save output
-            #     output_path = os.path.join('data', 'output', f'output_{uploaded_file.name}')
-            #     output_image.save(output_path)
-            #     st.success(f'Output saved to {output_path}')
-
+                    # Fetch identified objects from database
+                    identified_objects = get_objects(db_path, master_id)
+                    
+                    st.write(f"Processed image with master ID: {master_id}")
+                    st.write(f"Identified {len(identified_objects)} unique objects")
+                    
+                    # Display the identified objects
+                    for obj in identified_objects:
+                        object_image_path = os.path.join(output_dir, obj[2])  # obj[2] is the filename
+                        st.image(object_image_path, caption=f"Object {obj[0]}: {obj[4]}", use_column_width=True)
+                        
+                    # Display metadata table
+                    st.subheader('Identified Object Metadata')
+                    df = pd.DataFrame(identified_objects, columns=['Object ID', 'Master ID', 'Filename', 'Label', 'Identification'])
+                    st.table(df)
+            except Exception as e:
+                st.error(f"An error occurred during object identification: {str(e)}")
+                st.error("Please check if 'imagenet_classes.txt' is present in the project root directory.")
 st.sidebar.title('About')
 st.sidebar.info('This app demonstrates an image processing pipeline that segments objects, identifies them, extracts text, and summarizes attributes.')
 

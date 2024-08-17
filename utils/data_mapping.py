@@ -9,13 +9,20 @@ def create_database(db_path):
         object_id TEXT PRIMARY KEY,
         master_id TEXT,
         filename TEXT,
-        label INTEGER
+        label INTEGER,
+        identification TEXT
     )
     ''')
     
+    # Check if the identification column exists, if not, add it
+    cursor.execute("PRAGMA table_info(objects)")
+    columns = [column[1] for column in cursor.fetchall()]
+    if 'identification' not in columns:
+        cursor.execute('ALTER TABLE objects ADD COLUMN identification TEXT')
+    
     conn.commit()
     conn.close()
-
+    
 def insert_objects(db_path, object_data):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
