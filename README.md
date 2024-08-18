@@ -52,8 +52,6 @@ project_root/
 │   ├── data_mapping.py            # Script for data mapping functions
 │   └── visualization.py           # Script for visualization functions
 ```
-## Project Structure
-
 - **app.py**: The main application file integrating all steps of the pipeline and serving the Streamlit interface.
 - **segmentation.py**: Contains the code for segmenting images using Mask R-CNN.
 - **identification.py**: Handles object identification using pre-trained models.
