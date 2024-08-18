@@ -79,13 +79,3 @@ def create_final_output(image_path, db_path, master_id):
     final_image.save(final_output_path)
     
     return final_output_path, mapped_data
-
-# Usage example
-if __name__ == "__main__":
-    db_path = 'data/database.sqlite'
-    image_path = 'data/input_images/example.jpg'
-    master_id = 'example_master_id'
-    
-    final_output_path, mapped_data = create_final_output(image_path, db_path, master_id)
-    print(f"Final output saved to: {final_output_path}")
-    print("Mapped data:", mapped_data)
