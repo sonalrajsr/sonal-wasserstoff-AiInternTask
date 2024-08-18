@@ -1,7 +1,6 @@
 To represent the directory structure in your GitHub README, you can use the following Markdown format:
 
 ```markdown
-```
 project_root/
 │
 ├── data/
@@ -21,6 +20,6 @@ project_root/
 │   ├── data_mapping.py            # Script for data mapping functions
 │   └── visualization.py           # Script for visualization functions
 ```
-```
+
 
 This format will clearly represent the directory structure when viewed in your GitHub README file.
