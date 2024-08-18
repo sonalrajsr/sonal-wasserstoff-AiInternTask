@@ -2,18 +2,18 @@
 
 ## Project Overview
 
-This project implements an AI pipeline that processes input images to segment, identify, and analyze objects within them. The pipeline outputs a summary table with mapped data for each object in the image.
+This project is an AI-powered pipeline designed for image segmentation and object identification. The pipeline segments objects within images and identifies them using state-of-the-art deep learning models. It also includes the ability to extract and store segmented objects, generate textual descriptions, and present the results through an interactive web application built with Streamlit.
+
+The project is structured into multiple steps, each designed to handle a specific task in the pipeline, from image segmentation to object identification and description generation. The end goal is to provide an end-to-end solution for analyzing images and extracting meaningful insights.
 
 ## Features
 
-- Image segmentation
-- Object extraction and storage
-- Object identification
-- Text/data extraction from objects
-- Object attribute summarization
-- Data mapping
-- Output generation with annotated images and summary tables
-- Streamlit UI for easy testing and visualization
+- **Image Segmentation**: Utilizes the Mask R-CNN model to segment objects from input images.
+- **Object Identification**: Implements pre-trained models such as YOLO and Faster R-CNN to identify objects within the segmented images.
+- **Textual Description Generation**: Generates descriptions for identified objects using models like CLIP.
+- **Database Integration**: Stores metadata and object details in an SQLite database for efficient data management.
+- **Interactive Web Interface**: A user-friendly web application built with Streamlit allows users to upload images, perform segmentation, identification, and view results in real-time.
+
 
 ## Setup Instructions
 
