@@ -34,6 +34,9 @@ pip install -r requirements.txt
 ## Usage
 
 1. To run the Streamlit app:
+```bash
+streamlit run app.py
+```
 2. To use the pipeline programmatically:
 ```python
 from models.segmentation_model import segment_image
