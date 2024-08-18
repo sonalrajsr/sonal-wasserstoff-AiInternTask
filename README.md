@@ -37,7 +37,7 @@ identified_objects = identify_objects(segmented_objects)
 # Continue with other pipeline steps
 ```
        
-
+## Project Structure
 ```markdown
 project_root/
 │
