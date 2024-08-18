@@ -31,17 +31,6 @@ pip install -r requirements.txt
 ```
 4. Download and set up the pre-trained models (if applicable):
 
-## Instructions
-
-1. **Place Images**: Place the images you want to analyze in the `data/input_images` directory.
-
-2. **Run the Streamlit Application**:
-```bash
-   streamlit run app.py
-```
-3. **Use the Web Interface**: Use the web interface to upload images, perform segmentation, and view the results.
-4. **Data Storage**: Identified objects and their descriptions will be stored in the SQLite database.
-       
 ## Project Structure
 ```markdown
 project_root/
