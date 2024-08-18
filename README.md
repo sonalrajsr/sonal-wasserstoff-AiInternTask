@@ -21,15 +21,15 @@ This project implements an AI pipeline that processes input images to segment, i
 ```bash
 git clone https://github.com/sonalrajsr/sonal-wasserstoff-AiInternTask.git
 ```
-3. Create a virtual environment (optional but recommended):
+2. Create a virtual environment (optional but recommended):
 ```bash
 python -m venv <name_of_virtual_environment>
 ```
-5. Install the required packages:
+3. Install the required packages:
 ```bash
 pip install -r requirements.txt
 ```
-7. Download and set up the pre-trained models (if applicable):
+4. Download and set up the pre-trained models (if applicable):
 
 ## Usage
 
