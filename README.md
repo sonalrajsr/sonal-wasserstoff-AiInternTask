@@ -31,23 +31,16 @@ pip install -r requirements.txt
 ```
 4. Download and set up the pre-trained models (if applicable):
 
-## Usage
+## Instructions
 
-1. To run the Streamlit app:
+1. **Place Images**: Place the images you want to analyze in the `data/input_images` directory.
+
+2. **Run the Streamlit Application**:
 ```bash
-streamlit run app.py
+   streamlit run app.py
 ```
-2. To use the pipeline programmatically:
-```python
-from models.segmentation_model import segment_image
-from models.identification_model import identify_objects
-# Import other necessary modules
-
-# Use the pipeline functions
-segmented_objects = segment_image(input_image)
-identified_objects = identify_objects(segmented_objects)
-# Continue with other pipeline steps
-```
+3. **Use the Web Interface**: Use the web interface to upload images, perform segmentation, and view the results.
+4. **Data Storage**: Identified objects and their descriptions will be stored in the SQLite database.
        
 ## Project Structure
 ```markdown
