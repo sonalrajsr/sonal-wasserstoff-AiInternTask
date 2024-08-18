@@ -13,7 +13,7 @@ from utils.data_mapping import create_database, get_objects
 from models.segmentation_model import load_model, segment_image
 from models.identification_model import extract_identify_and_store_objects
 from models.text_extraction_model import extract_text_from_single_image
-from models.summarization_model import summarize_object_attributes, summarize_single_object
+from models.summarization_model import update_captions_for_master
 from utils.data_mapping import map_data, generate_output_table, update_extracted_text_for_master
 from utils.visualization import create_final_output
 
@@ -173,37 +173,29 @@ elif option == "Text Extraction":
 elif option == "Summarization":
     st.title('Object Attribute Summarization')
     
+    # Fetch all master_ids from the database
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT DISTINCT master_id FROM objects")
+    master_ids = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    
+    selected_master_id = st.selectbox("Select a Master ID", master_ids)
+    
     if st.button('Summarize Object Attributes'):
-        output_dir = 'data/output'
         try:
-            with st.spinner('Summarizing object attributes...'):
-                summaries = summarize_object_attributes(db_path, output_dir)
-                
-                # Store summaries in the database
-                conn = sqlite3.connect(db_path)
-                cursor = conn.cursor()
-                for summary in summaries:
-                    cursor.execute('''
-                    UPDATE objects
-                    SET summary = ?
-                    WHERE object_id = ?
-                    ''', (summary['summary'], summary['object_id']))
-                conn.commit()
-                conn.close()
-                
-                st.success('Object attribute summarization completed.')
-                
-                # Display summaries
-                for summary in summaries:
-                    st.subheader(f"Object ID: {summary['object_id']}")
-                    st.write(summary['summary'])
+            with st.spinner('Summarizing object attributes and generating captions...'):
+                # Update captions for all images linked to the selected master_id
+                update_captions_for_master(db_path, selected_master_id)
                 
                 # Fetch and display the updated object data
                 conn = sqlite3.connect(db_path)
                 cursor = conn.cursor()
-                cursor.execute("SELECT object_id, identification, extracted_text, summary FROM objects")
+                cursor.execute("SELECT object_id, identification, extracted_text, summary FROM objects WHERE master_id = ?", (selected_master_id,))
                 objects = cursor.fetchall()
                 conn.close()
+                
+                st.success('Summarization completed.')
                 
                 st.subheader('Objects with Summaries')
                 if objects:
