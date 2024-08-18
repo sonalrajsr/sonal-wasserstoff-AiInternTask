@@ -30,6 +30,13 @@ python -m venv <name_of_virtual_environment>
 pip install -r requirements.txt
 ```
 4. Download and set up the pre-trained models (if applicable):
+   
+## Models Used
+
+- **Mask R-CNN**: Used for image segmentation to detect and segment objects within the input images.
+- **YOLO (You Only Look Once)**: A pre-trained model utilized for real-time object identification within the segmented images.
+- **Faster R-CNN**: Another pre-trained model for object identification, offering a balance between speed and accuracy.
+- **CLIP (Contrastive Language–Image Pretraining)**: Employed to generate textual descriptions for the identified objects, bridging the gap between vision and language.
 
 ## Project Structure
 ```markdown
