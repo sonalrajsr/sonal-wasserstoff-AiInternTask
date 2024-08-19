@@ -30,6 +30,11 @@ python -m venv <name_of_virtual_environment>
 pip install -r requirements.txt
 ```
 4. Download and set up the pre-trained models (if applicable):
+
+5. Run app
+```bash
+streamlit run streamlit_app\app.py
+```
    
 ## Models Used
 
