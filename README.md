@@ -43,12 +43,23 @@ pip install -r requirements.txt
 streamlit run streamlit_app\app.py
 ```
    
-## Models Used
+## Models and Tasks
 
-- **Mask R-CNN**: Used for image segmentation to detect and segment objects within the input images.
-- **YOLO (You Only Look Once)**: A pre-trained model utilized for real-time object identification within the segmented images.
-- **Faster R-CNN**: Another pre-trained model for object identification, offering a balance between speed and accuracy.
-- **CLIP (Contrastive Language–Image Pretraining)**: Employed to generate textual descriptions for the identified objects, bridging the gap between vision and language.
+### 1. Mask R-CNN (maskrcnn_resnet50_fpn)
+- **Task**: Image Segmentation
+- **Purpose**: Segments objects in the input image, providing masks, bounding boxes, and labels for detected objects.
+
+### 2. VGG16
+- **Task**: Object Identification
+- **Purpose**: Identifies and classifies the objects extracted from the segmentation step.
+
+### 3. BLIP (Salesforce/blip-image-captioning-base)
+- **Task**: Image Captioning / Summarization
+- **Purpose**: Generates captions or summaries for the extracted objects.
+
+### 4. EasyOCR
+- **Task**: Text Extraction
+- **Purpose**: Extracts any text present in the segmented objects or images.
 
 ## Project Structure
 ```markdown
