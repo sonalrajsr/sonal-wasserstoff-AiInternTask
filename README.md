@@ -1,17 +1,19 @@
-# Image Captioning Project
-This project demonstrates an image captioning application using Streamlit, TensorFlow, and Python. The application allows users to upload an image, and it predicts a caption for the image using a deep learning model trained on a dataset of images and their corresponding captions.
+# AI Pipeline for Image Segmentation and Object Analysis
 
-## Introduction
-This application showcases the application of AI in understanding and describing visual content. It was created as a project to demonstrate image captioning technology using a combination of Streamlit for the web interface and TensorFlow for the deep learning model.
+## Project Overview
 
-## Working Website
-```
-https://image-captioning-website.streamlit.app/
-```
+This project is an AI-powered pipeline designed for image segmentation and object identification. The pipeline segments objects within images and identifies them using state-of-the-art deep learning models. It also includes the ability to extract and store segmented objects, generate textual descriptions, and present the results through an interactive web application built with Streamlit.
+
+The project is structured into multiple steps, each designed to handle a specific task in the pipeline, from image segmentation to object identification and description generation. The end goal is to provide an end-to-end solution for analyzing images and extracting meaningful insights.
+
 ## Features
-- Upload an image and receive a predicted caption.
-- Uses a pre-trained VGG16 model to extract image features.
-- Deep learning model trained on a dataset of images and captions.
+
+- **Image Segmentation**: Utilizes the Mask R-CNN model to segment objects from input images.
+- **Object Identification**: Implements pre-trained models such as YOLO and Faster R-CNN to identify objects within the segmented images.
+- **Textual Description Generation**: Generates descriptions for identified objects using models like CLIP.
+- **Database Integration**: Stores metadata and object details in an SQLite database for efficient data management.
+- **Interactive Web Interface**: A user-friendly web application built with Streamlit allows users to upload images, perform segmentation, identification, and view results in real-time.
+
 ## Demo
 Visit this link for demo, Working of website and model.
 ```
@@ -19,53 +21,60 @@ https://youtu.be/VwykU0esElY
 ```
 [![Watch the video](https://img.youtube.com/vi/VwykU0esElY/maxresdefault.jpg)](https://www.youtube.com/watch?v=VwykU0esElY)
 
-## Working Link
-Some times Link doesn't Work, then please see the Demo Video
+
+## Setup Instructions
+
+1. Clone the repository:
 ```bash
-https://image-captioning-website.streamlit.app/
+git clone https://github.com/sonalrajsr/sonal-wasserstoff-AiInternTask.git
 ```
-## Installation
-To get this project up and running locally on your machine, follow these steps:
-
-- Clone the repository:
-
+2. Create a virtual environment (optional but recommended):
 ```bash
-git clone https://github.com/yourusername/image-captioning.git
+python -m venv <name_of_virtual_environment>
 ```
-``` bash
-cd image-captioning
-```
-- Create and activate a virtual environment:
-
-```bash
-python -m venv venv
-source venv/bin/activate   # On Windows use `venv\Scripts\activate`
-```
-- Install the required dependencies:
-
+3. Install the required packages:
 ```bash
 pip install -r requirements.txt
 ```
-- Download the pre-trained model weights and necessary files:
-- Place the model_weights_epoch_1.h5 file in the model directory.
-- Place the all_captions.pkl file in the project root directory.
+4. Download and set up the pre-trained models (if applicable):
 
-## Dataset
+5. Run app
 ```bash
-https://www.kaggle.com/datasets/adityajn105/flickr8k
+streamlit run streamlit_app\app.py
 ```
-## Usage
-To start the Streamlit application, run the following command:
-``` bash
-streamlit run streamlit_app.py
+   
+## Models Used
+
+- **Mask R-CNN**: Used for image segmentation to detect and segment objects within the input images.
+- **YOLO (You Only Look Once)**: A pre-trained model utilized for real-time object identification within the segmented images.
+- **Faster R-CNN**: Another pre-trained model for object identification, offering a balance between speed and accuracy.
+- **CLIP (Contrastive Language–Image Pretraining)**: Employed to generate textual descriptions for the identified objects, bridging the gap between vision and language.
+
+## Project Structure
+```markdown
+project_root/
+│
+├── data/
+│   ├── input_images/              # Directory for input images
+│   ├── segmented_objects/         # Directory to save segmented object images
+│   └── output/                    # Directory for output images and tables
+│
+├── models/
+│   ├── segmentation_model.py      # Script for segmentation model
+│   ├── identification_model.py    # Script for object identification model
+│   ├── text_extraction_model.py   # Script for text/data extraction model
+│   └── summarization_model.py     # Script for summarization model
+│
+├── utils/
+│   ├── preprocessing.py           # Script for preprocessing functions
+│   ├── postprocessing.py          # Script for postprocessing functions
+│   ├── data_mapping.py            # Script for data mapping functions
+│   └── visualization.py           # Script for visualization functions
 ```
-## Model Details
-The model architecture includes:
+- **app.py**: The main application file integrating all steps of the pipeline and serving the Streamlit interface.
+- **segmentation.py**: Contains the code for segmenting images using Mask R-CNN.
+- **identification.py**: Handles object identification using pre-trained models.
+- **mapping.py**: Maps identified objects to their descriptions.
+- **data/**: Directory for storing input images, segmented objects, and the SQLite database.
+- **requirements.txt**: Lists all dependencies required to run the project.
 
-- Image Feature Extractor: VGG16 pre-trained on ImageNet.
-- Text Processing: Tokenizer for converting text to sequences and embedding layers.
-- Caption Generator: Combination of dense layers and LSTM for generating captions.
-
-## Model
-
-![App Screenshot](model.png)
