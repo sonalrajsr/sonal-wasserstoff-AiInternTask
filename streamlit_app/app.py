@@ -283,10 +283,30 @@ elif option == "Output Generation":
                 
                 # Generate output table
                 output_table = generate_output_table(db_path, selected_master_id)
+                
                 st.subheader('Summary Table')
-                st.table(output_table)
+                
+                # Display the table with images
+                for _, row in output_table.iterrows():
+                    # Create two columns: one for image, one for data
+                    image_col, data_col = st.columns([1, 3])
+                    
+                    # Display the object image
+                    object_image_path = os.path.join('data', 'output', row['filename'])
+                    if os.path.exists(object_image_path):
+                        image_col.image(object_image_path, use_column_width=True)
+                    else:
+                        image_col.write("Image not found")
+                    
+                    # Display other columns
+                    for column, value in row.items():
+                        if column != 'filename':
+                            data_col.write(f"**{column}:** {value}")
+                    
+                    st.write("---")
+                
         except Exception as e:
             st.error(f"An error occurred during output generation: {str(e)}")
-
+            st.error("Error details:", exc_info=True)  # This will print more detailed error information
 st.sidebar.title('About')
 st.sidebar.info('This app demonstrates an image processing pipeline that segments objects, identifies them, extracts text, and summarizes attributes.')
