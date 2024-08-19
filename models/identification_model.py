@@ -6,7 +6,6 @@ import numpy as np
 import torch
 from torchvision.models.detection import maskrcnn_resnet50_fpn
 from torchvision.transforms import functional as F
-from torchvision.models import resnet50
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
 
@@ -93,13 +92,17 @@ def store_metadata(db_path, object_data):
 #identification part
 
 
+import torch
+from torchvision.models import vgg16, VGG16_Weights
+from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
+
 def load_identification_model():
-    model = efficientnet_b0(weights=EfficientNet_B0_Weights.DEFAULT)
+    model = vgg16(weights=VGG16_Weights.DEFAULT)
     model.eval()
     return model
 
 def preprocess_image(image):
-    # Use the preprocessing pipeline recommended for EfficientNet-B0
+    # Use the preprocessing pipeline recommended for VGG16
     transform = Compose([
         Resize(256),
         CenterCrop(224),
@@ -113,14 +116,13 @@ def identify_object(model, image):
     with torch.no_grad():
         output = model(image_tensor)
     
-    weights = EfficientNet_B0_Weights.DEFAULT
+    weights = VGG16_Weights.DEFAULT
     categories = weights.meta["categories"]
     
     probabilities = torch.nn.functional.softmax(output[0], dim=0)
     top_prob, top_catid = torch.topk(probabilities, 1)
     
-    return categories[top_catid[0]]  # This now returns a string instead of a list
-
+    return categories[top_catid[0]]
 
 def extract_identify_and_store_objects(image_path, output_dir, db_path, identification_model, max_objects=5):
     # Ensure output directory exists
