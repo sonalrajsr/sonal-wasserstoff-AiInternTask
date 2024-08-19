@@ -8,8 +8,7 @@ from torchvision.models.detection import maskrcnn_resnet50_fpn
 from torchvision.transforms import functional as F
 from torchvision.models import resnet50
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
-from torchvision.transforms import functional as F
-
+from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
 
 def load_model():
     model = maskrcnn_resnet50_fpn(pretrained=True)
@@ -93,12 +92,14 @@ def store_metadata(db_path, object_data):
 ###########################################################
 #identification part
 
+
 def load_identification_model():
-    model = resnet50(pretrained=True)
+    model = efficientnet_b0(weights=EfficientNet_B0_Weights.DEFAULT)
     model.eval()
     return model
 
 def preprocess_image(image):
+    # Use the preprocessing pipeline recommended for EfficientNet-B0
     transform = Compose([
         Resize(256),
         CenterCrop(224),
@@ -112,18 +113,16 @@ def identify_object(model, image):
     with torch.no_grad():
         output = model(image_tensor)
     
-    # Load ImageNet class labels
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(current_dir)
-    classes_path = os.path.join(project_root, 'imagenet_classes.txt')
+    weights = EfficientNet_B0_Weights.DEFAULT
+    categories = weights.meta["categories"]
     
-    with open(classes_path) as f:
-        classes = [line.strip() for line in f.readlines()]
+    probabilities = torch.nn.functional.softmax(output[0], dim=0)
+    top_prob, top_catid = torch.topk(probabilities, 1)
     
-    _, predicted = torch.max(output, 1)
-    return classes[predicted.item()]
+    return categories[top_catid[0]]  # This now returns a string instead of a list
 
-def extract_identify_and_store_objects(image_path, output_dir, db_path, max_objects=5):
+
+def extract_identify_and_store_objects(image_path, output_dir, db_path, identification_model, max_objects=5):
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
     # Load the segmentation model
@@ -166,7 +165,9 @@ def extract_identify_and_store_objects(image_path, output_dir, db_path, max_obje
             'master_id': master_id,
             'filename': object_filename,
             'label': label.item(),
-            'identification': identification
+            'identification': identification,
+            'extracted_text': None, 
+            'summary': None 
         })
     # Store metadata in SQLite database
     store_metadata(db_path, object_data)
@@ -177,8 +178,8 @@ def store_metadata(db_path, object_data):
     cursor = conn.cursor()
     # Insert object data
     cursor.executemany('''
-    INSERT INTO objects (object_id, master_id, filename, label, identification)
-    VALUES (:object_id, :master_id, :filename, :label, :identification)
+    INSERT INTO objects (object_id, master_id, filename, label, identification, extracted_text, summary)
+    VALUES (:object_id, :master_id, :filename, :label, :identification, :extracted_text, :summary)
     ''', object_data)
     conn.commit()
     conn.close()

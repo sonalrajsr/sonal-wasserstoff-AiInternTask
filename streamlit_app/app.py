@@ -12,7 +12,7 @@ import sqlite3
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.data_mapping import create_database, get_objects
 from models.segmentation_model import load_model, segment_image
-from models.identification_model import extract_identify_and_store_objects
+from models.identification_model import extract_identify_and_store_objects, load_identification_model
 from models.text_extraction_model import extract_text_from_single_image
 from models.summarization_model import update_captions_for_master
 from utils.data_mapping import map_data, generate_output_table, update_extracted_text_for_master
@@ -25,9 +25,9 @@ create_database(db_path)
 # Load models
 @st.cache_resource
 def load_models():
-    return load_model()
+    return load_model(), load_identification_model()
 
-segmentation_model = load_models()
+segmentation_model, identification_model = load_models()
 
 # Set up the main navigation options
 st.sidebar.title('Navigation')
@@ -105,7 +105,7 @@ elif option == "Object Extraction and Identification":
             try:
                 with st.spinner('Extracting and identifying objects...'):
                     # First, generate master_id by processing the image
-                    master_id, object_data = extract_identify_and_store_objects(temp_file_path, output_dir, db_path)
+                    master_id, object_data = extract_identify_and_store_objects(temp_file_path, output_dir, db_path, identification_model)
                     
                     # Now rename the file using the master_id
                     master_id_file_path = os.path.join('data', 'input_images', f'{master_id}.jpg')
@@ -124,7 +124,7 @@ elif option == "Object Extraction and Identification":
                     # Display metadata table
                     st.subheader('Extracted and Identified Object Metadata')
                     df = pd.DataFrame(object_data)
-                    st.table(df)
+                    st.table(df.iloc[:, :-2])
 
                     # Fetch from database
                     db_objects = get_objects(db_path, master_id)
@@ -160,15 +160,15 @@ elif option == "Text Extraction":
             with st.spinner('Extracting text from image...'):
                 extracted_text = extract_text_from_single_image(image_path)
                 
-                st.success('Text extraction completed.')
+                st.write('Text extraction completed.')
                 
                 if extracted_text:
                     st.subheader('Extracted Text:')
-                    st.write(extracted_text)
+                    st.success(extracted_text)
                     
                     # Update the database with the extracted text for all rows associated with the selected master_id
                     update_extracted_text_for_master(db_path, selected_master_id, extracted_text)
-                    st.success(f'Text has been successfully stored in the database for master ID {selected_master_id}.')
+                    st.write(f'Text has been successfully stored in the database for master ID {selected_master_id}.')
                     
                 else:
                     st.info("No text was extracted from the image.")
