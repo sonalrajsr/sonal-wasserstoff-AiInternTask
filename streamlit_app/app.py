@@ -133,7 +133,6 @@ elif option == "Object Extraction and Identification":
                     st.table(db_df.iloc[:, :-2])
             except Exception as e:
                 st.error(f"An error occurred during object extraction and identification: {str(e)}")
-                st.error("Please check if 'imagenet_classes.txt' is present in the project root directory.")
 
 elif option == "Text Extraction":
     st.title('Image Upload and Text Extraction')

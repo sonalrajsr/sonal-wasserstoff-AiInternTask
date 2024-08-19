@@ -86,7 +86,7 @@ def generate_output_table(db_path, master_id):
     conn = sqlite3.connect(db_path)
     
     query = '''
-    SELECT object_id, identification, extracted_text, summary
+    SELECT filename, object_id, identification, extracted_text, summary
     FROM objects
     WHERE master_id = ?
     '''
