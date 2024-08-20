@@ -5,7 +5,6 @@ from PIL import Image
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import io
 import sqlite3
 
 # Add the project root to the Python path
