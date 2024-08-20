@@ -1,5 +1,4 @@
 import torch
-import torchvision
 from torchvision.models.detection import maskrcnn_resnet50_fpn
 from torchvision.transforms import functional as F
 from PIL import Image
@@ -58,12 +57,3 @@ def visualize_segmentation_streamlit(image, masks, boxes):
     plt.savefig(buf, format="png")
     buf.seek(0)
     return buf
-
-def main():
-    model = load_model()
-    image_path = "data\input_images\bigstock-Kids-Play-Football-Child-At-S-250398277.jpg"  # Replace with your image path
-    image, masks, boxes, labels = segment_image(model, image_path)
-    visualize_segmentation_streamlit(image, masks, boxes)
-
-if __name__ == "__main__":
-    main()

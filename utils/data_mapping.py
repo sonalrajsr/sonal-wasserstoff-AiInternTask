@@ -1,4 +1,6 @@
 import sqlite3
+import json
+import pandas as pd
 
 def create_database(db_path):
     conn = sqlite3.connect(db_path)
@@ -56,12 +58,6 @@ def get_objects(db_path, master_id):
 ############################################################################################################
 
 #Making anoter database for mapping all things step 7
-
-# data_mapping.py
-
-import sqlite3
-import json
-import pandas as pd
 
 # summary TEXT
 

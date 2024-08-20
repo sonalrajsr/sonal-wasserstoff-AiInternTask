@@ -7,7 +7,6 @@ import torch
 from torchvision.models.detection import maskrcnn_resnet50_fpn
 from torchvision.transforms import functional as F
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
-from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
 
 def load_model():
     model = maskrcnn_resnet50_fpn(pretrained=True)
