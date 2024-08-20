@@ -1,6 +1,6 @@
 # AI Pipeline for Image Segmentation and Object Analysis
 
-## Working Link
+## Hosted Link
 ```bash
 https://sonalrajsr-sonal-wasserstoff-aiinternta-streamlit-appapp-bgrcak.streamlit.app/
 ```
