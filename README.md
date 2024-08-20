@@ -32,7 +32,7 @@ https://youtu.be/VwykU0esElY
 ```bash
 git clone https://github.com/sonalrajsr/sonal-wasserstoff-AiInternTask.git
 ```
-2. Create a virtual environment (optional but recommended):
+2. Create a virtual environment (optional but recommended) & activate:
 ```bash
 python -m venv <name_of_virtual_environment>
 ```
