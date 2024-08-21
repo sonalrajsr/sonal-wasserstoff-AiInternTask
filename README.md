@@ -2,7 +2,8 @@
 
 ## Hosted Link
 ```bash
-https://sonalrajsr-sonal-wasserstoff-aiinternta-streamlit-appapp-bgrcak.streamlit.app/
+https://image-segmentation-and-object-analysis.streamlit.app/
+
 ```
 ## Project Overview
 
