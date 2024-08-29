@@ -57,7 +57,6 @@ def get_objects(db_path, master_id):
 
 ############################################################################################################
 
-#Making anoter database for mapping all things step 7
 
 # summary TEXT
 
