@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import pandas as pd
 from models.segmentation_model import segment_image, load_model

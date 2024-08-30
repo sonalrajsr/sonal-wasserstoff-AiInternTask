@@ -3,8 +3,6 @@ from torchvision.models.detection import maskrcnn_resnet50_fpn
 from torchvision.transforms import functional as F
 from PIL import Image
 import numpy as np
-import matplotlib.pyplot as plt
-import io
 
 def load_model():
     # Load pre-trained Mask R-CNN model
