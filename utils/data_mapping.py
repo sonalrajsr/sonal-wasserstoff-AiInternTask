@@ -17,30 +17,9 @@ def create_database(db_path):
         summary TEXT
     )
     ''')
-    
-    # Check if the extracted_text and summary columns exist, if not, add them
-    cursor.execute("PRAGMA table_info(objects)")
-    columns = [column[1] for column in cursor.fetchall()]
-    if 'extracted_text' not in columns:
-        cursor.execute('ALTER TABLE objects ADD COLUMN extracted_text TEXT')
-    if 'summary' not in columns:
-        cursor.execute('ALTER TABLE objects ADD COLUMN summary TEXT')
-    
     conn.commit()
     conn.close()
 
-    
-def insert_objects(db_path, object_data):
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.executemany('''
-    INSERT INTO objects (object_id, master_id, filename, label)
-    VALUES (:object_id, :master_id, :filename, :label)
-    ''', object_data)
-    
-    conn.commit()
-    conn.close()
 
 def get_objects(db_path, master_id):
     conn = sqlite3.connect(db_path)

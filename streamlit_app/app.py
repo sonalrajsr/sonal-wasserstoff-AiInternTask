@@ -73,7 +73,7 @@ if option == "Segmentation":
                 for i, (mask, box) in enumerate(zip(masks, boxes)):
                     color = np.random.rand(3)
                     masked = np.ma.masked_where(mask < 0.5, mask)
-                    ax.imshow(masked, alpha=0.4, cmap=plt.cm.get_cmap('jet'), interpolation='none')
+                    ax.imshow(masked, alpha=0.4, cmap=plt.colormaps.get_cmap('jet'), interpolation='none')
                     x1, y1, x2, y2 = box.astype(int)
                     ax.add_patch(plt.Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False, edgecolor=color, linewidth=2))
                     ax.text(x1, y1, f"Object {i+1}", bbox=dict(facecolor=color, alpha=0.5), fontsize=8, color='white')
