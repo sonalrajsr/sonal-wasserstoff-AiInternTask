@@ -9,12 +9,11 @@ import sqlite3
 
 # Add the project root to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utils.data_mapping import create_database, get_objects
+from utils.data_mapping import create_database, get_objects, map_data, generate_output_table, update_extracted_text_for_master
 from models.segmentation_model import load_model, segment_image
 from models.identification_model import extract_identify_and_store_objects, load_identification_model
 from models.text_extraction_model import extract_text_from_single_image
 from models.summarization_model import update_captions_for_master
-from utils.data_mapping import map_data, generate_output_table, update_extracted_text_for_master
 from utils.visualization import create_final_output
 
 # Ensure the database is created and migrated once at the start
